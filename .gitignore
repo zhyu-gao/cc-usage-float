@@ -1,0 +1,27 @@
+# 依赖
+node_modules/
+
+# 构建 / 打包产物
+dist/
+out/
+release/
+build/
+
+# 运行时产物与日志
+*.log
+npm-debug.log*
+yarn-error.log*
+data/config.json
+
+# 系统与编辑器
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# 本地内部工作目录（工具缓存、会话记忆）
+.workbuddy/
+
+# 临时截图
+docs/shot-*.png

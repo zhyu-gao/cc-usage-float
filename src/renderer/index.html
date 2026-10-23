@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'" />
+    <title>用量悬浮窗</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="card" class="card" data-theme="light">
+      <!-- 顶部：拖动手柄 + 操作 -->
+      <header class="head">
+        <div class="head-left">
+          <span class="pulse"></span>
+          <span class="scope" id="scope">今日</span>
+        </div>
+        <div class="head-right">
+          <button class="icon-btn only-expanded" id="btn-refresh" title="立即刷新">
+            <svg viewBox="0 0 16 16" width="13" height="13"><path d="M8 2.5a5.5 5.5 0 105.2 3.7" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M13.4 2v3.2h-3.2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button class="icon-btn" id="btn-menu" title="菜单">
+            <svg viewBox="0 0 16 16" width="13" height="13"><circle cx="3" cy="8" r="1.3" fill="currentColor"/><circle cx="8" cy="8" r="1.3" fill="currentColor"/><circle cx="13" cy="8" r="1.3" fill="currentColor"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- 主数字 -->
+      <div class="hero">
+        <div class="amount" id="amount">$0.00</div>
+        <div class="hero-side">
+          <div class="meta" id="meta">— 次 · —</div>
+          <div class="delta" id="delta"></div>
+        </div>
+      </div>
+
+      <!-- 展开区 -->
+      <section class="detail">
+        <div class="ranges" id="ranges">
+          <button data-range="today" class="chip active">今天</button>
+          <button data-range="7d" class="chip">7 天</button>
+          <button data-range="30d" class="chip">30 天</button>
+          <button data-range="all" class="chip">全部</button>
+          <button class="chip cur" id="btn-currency" title="切换币种">$ USD</button>
+        </div>
+
+        <div class="metrics">
+          <div class="metric">
+            <div class="m-label">花费</div>
+            <div class="m-value" id="m-cost">—</div>
+          </div>
+          <div class="metric">
+            <div class="m-label">请求数</div>
+            <div class="m-value" id="m-req">—</div>
+          </div>
+          <div class="metric">
+            <div class="m-label">真实 Tokens</div>
+            <div class="m-value" id="m-tokens">—</div>
+          </div>
+          <div class="metric">
+            <div class="m-label">缓存命中率</div>
+            <div class="m-value" id="m-hit">—</div>
+          </div>
+        </div>
+
+        <div class="chart-block">
+          <div class="block-title">
+            <span id="chart-title">按小时</span>
+            <span class="block-sub" id="chart-sub"></span>
+          </div>
+          <div class="bars" id="bars"></div>
+        </div>
+
+        <div class="table-block">
+          <div class="block-title">
+            <span>请求明细</span>
+            <span class="block-sub" id="table-sub"></span>
+          </div>
+          <div class="table-wrap">
+            <table class="req">
+              <thead>
+                <tr>
+                  <th class="c-time">时间</th>
+                  <th class="c-model">模型</th>
+                  <th class="c-num">输入</th>
+                  <th class="c-num">输出</th>
+                  <th class="c-num">缓存命中</th>
+                  <th class="c-num">成本</th>
+                  <th class="c-num">首字</th>
+                  <th class="c-num">速度</th>
+                </tr>
+              </thead>
+              <tbody id="rows"></tbody>
+            </table>
+            <div class="empty" id="empty" hidden>当前范围没有请求记录</div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="foot">
+        <span id="foot-sources"></span>
+        <span id="foot-updated"></span>
+      </footer>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>

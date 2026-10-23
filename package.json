@@ -1,0 +1,15 @@
+{
+  "name": "cc-usage-float",
+  "productName": "CC Usage Float",
+  "version": "0.1.0",
+  "description": "Codex / Claude Code 本地用量悬浮窗",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "probe": "node scripts/probe.js"
+  },
+  "devDependencies": {
+    "electron": "^45.0.0"
+  }
+}
