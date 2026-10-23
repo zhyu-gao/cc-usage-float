@@ -154,12 +154,46 @@ npm run probe        # 打印 today/7d/30d/all 的汇总、按模型、按天、
 
 ---
 
-## 七、打包成 exe（可选）
+## 七、打包与发布
+
+### 本地打包
 
 ```bash
-npm i -D electron-builder
-npx electron-builder --win portable
+npm run dist:win        # 产物：dist/cc-usage-float-<version>-x64.exe
 ```
+
+portable 单文件，双击即跑、无需安装；`requestExecutionLevel` 设为 `user`，不会弹 UAC。
+
+### CI 自动打包（GitHub Actions）
+
+配置在 `.github/workflows/build.yml`：
+
+| 触发 | 结果 |
+| --- | --- |
+| push 到 `main` | 构建 exe，挂到该次 Actions 的 artifacts，保留 30 天（不产生 Release） |
+| 打 tag `v*`（如 `v0.1.0`） | 构建 exe，创建 GitHub Release 并上传 exe，正文自动生成 |
+| 手动 `workflow_dispatch` | 只做构建 + artifact，不发布 |
+
+发版流程：
+
+```bash
+npm version patch          # 或 minor / major：改 package.json 版本号并打 tag
+git push --follow-tags     # 推提交 + 推 tag，触发 Release
+```
+
+workflow 会校验 tag 与 `package.json` 的 `version` 是否一致，不一致直接失败，
+避免出现「tag 是 v0.2.0、产物却叫 0.1.0」这种对不上的情况。
+
+其他约定：
+
+- runner 用 `windows-latest`，`npm ci` 显式指定 npmmirror（与 lock 文件里的 `resolved` 一致）；
+- CI 上无代码签名证书，设 `CSC_IDENTITY_AUTO_DISCOVERY=false` 跳过证书探测，产物未签名，
+  Windows 首次运行可能提示「已保护你的电脑」，需要点「更多信息 → 仍要运行」；
+- `concurrency` 按 ref 分组，同一分支连推会取消上一次未完成的构建。
+
+> **便携版已知限制**：`data/pricing.json` 打进 asar 后是只读的，
+> 右键「重新同步定价」写入会失败。开发模式（`npm start`）没有这个问题。
+> 需要可编辑的话，下一步应把定价表移到 `app.getPath('userData')`，首次启动时从内置副本拷一份。
 
 ---
 

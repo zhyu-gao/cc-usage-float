@@ -3,13 +3,44 @@
   "productName": "CC Usage Float",
   "version": "0.1.0",
   "description": "Codex / Claude Code 本地用量悬浮窗",
+  "author": "zhenyu_gao",
   "main": "main.js",
   "private": true,
   "scripts": {
     "start": "electron .",
-    "probe": "node scripts/probe.js"
+    "probe": "node scripts/probe.js",
+    "dist:win": "electron-builder --win portable"
   },
   "devDependencies": {
-    "electron": "^45.0.0"
+    "electron": "^45.0.0",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "io.ccusage.float",
+    "productName": "CC Usage Float",
+    "copyright": "Copyright © 2026 zhenyu_gao",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*",
+      "data/**/*",
+      "package.json"
+    ],
+    "asar": true,
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "artifactName": "cc-usage-float-${version}-x64.${ext}"
+    },
+    "portable": {
+      "requestExecutionLevel": "user"
+    }
   }
 }
