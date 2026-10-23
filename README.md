@@ -81,12 +81,25 @@ npm run probe        # 打印 today/7d/30d/all 的汇总、按模型、按天、
 | 滚轮 | 切时间范围：今天 → 7 天 → 30 天 → 全部（明细表内滚动不触发） |
 | `Esc` | 收起 |
 | 双击顶部「今日」 | 切浅色 / 深色 |
-| 右键 | 菜单：置顶 / 刷新间隔 / 透明度 / 立即刷新 / 打开定价文件 / 同步定价 / 退出 |
+| 右键 | 菜单：置顶 / 开机自启动 / 刷新间隔 / 透明度 / 立即刷新 / 打开定价文件 / 同步定价 / 退出 |
 | `Ctrl+Alt+U` | 显示 / 隐藏窗口 |
 | 点 `$ USD` | 切人民币显示（汇率读 `pricing.json` 的 `usdToCny`） |
 
 窗口特性：无边框、半透明、置顶、不进任务栏、单实例、位置与范围持久化到
 `%APPDATA%\CC Usage Float\config.json`。
+
+### 开机自启动
+
+右键菜单勾选「开机自启动」即可，状态直接读系统登录项（
+`HKCU\Software\Microsoft\Windows\CurrentVersion\Run`），不在 `config.json` 里另存一份，
+所以你在任务管理器里手动禁用后，菜单勾选也会跟着变。
+
+- **开发模式**（`npm start` / `start.bat`）：登录项指向 `node_modules/electron/dist/electron.exe`，
+  并带上工程目录作为参数，否则开机只会拉起一个空的 Electron 壳；
+- **打包后**：登录项指向产品 exe，不需要额外参数；
+- 如果平时用 `start-compat.bat` 启动，自启动会一并写入 `--no-sandbox --disable-gpu`，
+  避免开机时因为 GPU 沙箱崩溃而闪退；
+- 写入被安全软件拦下时会弹窗提示，不会留下"以为设上了其实没设"的假象。
 
 ---
 

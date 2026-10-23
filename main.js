@@ -76,6 +76,47 @@ function saveConfig() {
   }
 }
 
+// ---------------------------------------------------------------- 开机自启动
+
+/**
+ * Windows 上最终落到 HKCU\Software\Microsoft\Windows\CurrentVersion\Run，
+ * 值为 `"<path>" <args...>`。
+ *
+ * 开发模式（npm start）下 process.execPath 是 node_modules 里的 electron.exe，
+ * 必须把工程目录作为参数带上，否则开机时只会拉起一个空的 Electron 壳。
+ * 打包后 execPath 就是产品 exe，不需要额外参数。
+ */
+function loginItemOptions() {
+  if (app.isPackaged) return { path: process.execPath, args: [] };
+  const args = [app.getAppPath()];
+  // 与 start-compat.bat 对齐：受限会话下需要绕开 GPU 沙箱，否则开机拉起即退出
+  if (process.env.CCUF_NO_SANDBOX === '1') args.push('--no-sandbox', '--disable-gpu');
+  return { path: process.execPath, args };
+}
+
+/** 以系统登录项为准，不在 config.json 里另存一份，避免两边不一致 */
+function autoLaunchEnabled() {
+  try {
+    return !!app.getLoginItemSettings(loginItemOptions()).openAtLogin;
+  } catch (e) {
+    console.error('读取自启动状态失败', e.message);
+    return false;
+  }
+}
+
+/** 返回写入后回读的真实状态，供调用方判断是否生效 */
+function setAutoLaunch(enabled) {
+  const opts = { ...loginItemOptions(), openAtLogin: !!enabled };
+  if (process.platform === 'darwin') opts.openAsHidden = true;
+  try {
+    app.setLoginItemSettings(opts);
+  } catch (e) {
+    console.error('设置自启动失败', e.message);
+    return !enabled;
+  }
+  return autoLaunchEnabled();
+}
+
 // ---------------------------------------------------------------- 窗口
 
 function clampToDisplay(x, y) {
@@ -367,6 +408,24 @@ ipcMain.on('menu:show', () => {
         saveConfig();
         if (win) win.setAlwaysOnTop(config.alwaysOnTop, 'floating');
         pushState();
+      },
+    },
+    {
+      label: '开机自启动',
+      type: 'checkbox',
+      checked: autoLaunchEnabled(),
+      click: (item) => {
+        const actual = setAutoLaunch(item.checked);
+        // 系统写入被拦下时勾选状态不可信，明确告知，别让用户以为设上了
+        if (actual !== item.checked) {
+          dialog.showMessageBox({
+            type: 'warning',
+            title: '开机自启动',
+            message: item.checked ? '设置开机自启动失败' : '取消开机自启动失败',
+            detail: '系统未接受登录项修改，可能被安全软件拦截。可在「任务管理器 → 启动应用」中手动调整。',
+            buttons: ['好'],
+          });
+        }
       },
     },
     { type: 'separator' },
