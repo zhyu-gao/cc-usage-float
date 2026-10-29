@@ -83,7 +83,17 @@ function ago(ts) {
 function render(next) {
   state = next;
   card.classList.toggle('expanded', !!next.expanded);
+  // 贴边后缩成的小胶囊：只留金额，形态接近刘海 / 灵动岛
+  card.classList.toggle('mini', !!next.mini && !next.expanded);
+  // 贴边且未展开：统一走深色玻璃，胶囊和收起态之间不再在黑白之间跳
+  card.classList.toggle('docked', !!next.edge && !next.expanded);
   card.dataset.theme = next.theme || 'light';
+  // 贴顶时在卡片两侧画内凹肩线（用 body 的 12px 内边距作画布），
+  // 同时由 CSS 去掉顶部内边距，让卡片真正贴住屏幕边缘
+  document.body.dataset.dock = next.edge === 'top' ? '1' : '';
+  // 贴边时压平外侧圆角，卡片看起来是"从屏幕边缘长出来"的
+  if (next.edge) card.dataset.edge = next.edge;
+  else delete card.dataset.edge;
 
   const s = next.snapshot;
   if (!s) return;
@@ -92,8 +102,18 @@ function render(next) {
   const sum = s.summary;
   els.scope.textContent = RANGE_LABEL[next.range] || '今日';
   setAmount(els.amount, sum.cost);
-  els.meta.textContent = `${sum.requests} 次 · ${compact(sum.tokens)} tokens`;
-  els.delta.textContent = sum.requests ? `缓存命中 ${pct(sum.hitRate)}` : '暂无请求';
+  // 胶囊窄，两行指标都要压缩：去掉 " tokens" 后缀、命中率去掉 "缓存" 前缀，
+  // 否则会被 ellipsis 截断。点击展开后恢复完整文案。
+  const tok = compact(sum.tokens);
+  const isMini = next.mini && !next.expanded;
+  els.meta.textContent = isMini
+    ? `${sum.requests} 次 · ${tok}`
+    : `${sum.requests} 次 · ${tok} tokens`;
+  els.delta.textContent = !sum.requests
+    ? '暂无请求'
+    : isMini
+    ? `命中 ${pct(sum.hitRate)}`
+    : `缓存命中 ${pct(sum.hitRate)}`;
 
   if (!next.expanded) return;
 
@@ -250,9 +270,12 @@ document.querySelector('.head').addEventListener('dblclick', () => {
 
 window.api.getInitialState().then(async (init) => {
   render(init);
+  const range = init.range;
   try {
-    const cfg = await window.api.getUsage(init.range);
-    if (cfg) render({ ...init, snapshot: cfg });
+    const cfg = await window.api.getUsage(range);
+    // 只替换数据，其余字段取最新 state：否则慢扫描返回时会把期间的
+    // 展开 / 贴边 / 胶囊状态整体回滚成启动那一刻的值
+    if (cfg && state && state.range === range) render({ ...state, snapshot: cfg });
   } catch (e) {
     console.error(e);
   }

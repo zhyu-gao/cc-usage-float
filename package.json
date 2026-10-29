@@ -1,7 +1,7 @@
 {
   "name": "cc-usage-float",
   "productName": "CC Usage Float",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Codex / Claude Code 本地用量悬浮窗",
   "author": "zhenyu_gao",
   "main": "main.js",

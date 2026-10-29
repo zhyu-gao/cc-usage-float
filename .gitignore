@@ -23,5 +23,6 @@ desktop.ini
 # 本地内部工作目录（工具缓存、会话记忆）
 .workbuddy/
 
-# 临时截图
+# 临时截图与本地临时目录
 docs/shot-*.png
+.tmp/
