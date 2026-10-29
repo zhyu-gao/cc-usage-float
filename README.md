@@ -188,8 +188,8 @@ portable 单文件，双击即跑、无需安装；`requestExecutionLevel` 设�
 
 | 触发 | 结果 |
 | --- | --- |
-| push 到 `main` | 构建 exe，挂到该次 Actions 的 artifacts，保留 30 天（不产生 Release） |
 | 打 tag `v*`（如 `v0.1.0`） | 构建 exe，创建 GitHub Release 并上传 exe，正文自动生成 |
+| push 到任何分支（含 `main`） | **不触发**，不构建、不产生 artifact |
 | 手动 `workflow_dispatch` | 只做构建 + artifact，不发布 |
 
 发版流程：
@@ -207,7 +207,7 @@ workflow 会校验 tag 与 `package.json` 的 `version` 是否一致，不一致
 - runner 用 `windows-latest`，`npm ci` 显式指定 npmmirror（与 lock 文件里的 `resolved` 一致）；
 - CI 上无代码签名证书，设 `CSC_IDENTITY_AUTO_DISCOVERY=false` 跳过证书探测，产物未签名，
   Windows 首次运行可能提示「已保护你的电脑」，需要点「更多信息 → 仍要运行」；
-- `concurrency` 按 ref 分组，同一分支连推会取消上一次未完成的构建。
+- `concurrency` 按 ref 分组，同一 tag 连推会取消上一次未完成的构建。
 
 > **便携版已知限制**：`data/pricing.json` 打进 asar 后是只读的，
 > 右键「重新同步定价」写入会失败。开发模式（`npm start`）没有这个问题。

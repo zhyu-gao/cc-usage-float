@@ -1,11 +1,10 @@
 name: build
 
-# push 到 main：只构建并把 exe 挂到 Actions 的 artifacts，不打扰 Release 列表
-# 打 tag v*：额外创建 GitHub Release 并上传 exe
-# 也可以在 Actions 页面手动触发
+# 只有推送 tag v* 才构建：创建 GitHub Release 并上传 exe
+# 普通分支提交（含 main）不再触发任何构建
+# 也可以在 Actions 页面手动触发（只出 artifact，不发布 Release）
 on:
   push:
-    branches: [main]
     tags: ['v*']
   workflow_dispatch:
 
@@ -13,7 +12,7 @@ on:
 permissions:
   contents: write
 
-# 同一分支/标签连续提交时，取消上一次未完成的构建
+# 同一 tag 连续触发时，取消上一次未完成的构建
 concurrency:
   group: build-${{ github.ref }}
   cancel-in-progress: true
