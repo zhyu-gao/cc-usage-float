@@ -271,7 +271,7 @@ function clampX(x, width, area) {
 
 function targetSize(expanded, small) {
   if (expanded) return EXPANDED;
-  if (small && config.edge === 'top') return { ...MINI, width: 428 };
+  if (small && config.edge === 'top') return { ...MINI, width: 428, height: 68 };
   return small ? MINI : COLLAPSED;
 }
 
